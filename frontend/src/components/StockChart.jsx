@@ -30,8 +30,7 @@ export default function StockChart({ ticker }) {
     const fetchChartData = async () => {
       setLoading(true);
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-        const response = await fetch(`${API_BASE}/api/chart/${ticker}?range=${selectedRange}`);
+        const response = await fetch(`/api/chart/${ticker}?range=${selectedRange}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         
