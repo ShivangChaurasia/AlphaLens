@@ -70,7 +70,20 @@ async function financialNode(state, config) {
   
   if (fmpKey) {
     try {
-      const profile = await axios.get(`https://financialmodelingprep.com/api/v3/profile/${company}?apikey=${fmpKey}`);
+      // Step 1: Search for the company ticker on NSE/BSE
+      let ticker = company;
+      const searchRes = await axios.get(`https://financialmodelingprep.com/api/v3/search?query=${company}&exchange=NSE&apikey=${fmpKey}`);
+      if (searchRes.data && searchRes.data.length > 0) {
+        ticker = searchRes.data[0].symbol;
+      } else {
+        // Fallback to BSE if NSE not found
+        const bseSearch = await axios.get(`https://financialmodelingprep.com/api/v3/search?query=${company}&exchange=BSE&apikey=${fmpKey}`);
+        if (bseSearch.data && bseSearch.data.length > 0) {
+          ticker = bseSearch.data[0].symbol;
+        }
+      }
+
+      const profile = await axios.get(`https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${fmpKey}`);
       if (profile.data && profile.data.length > 0) {
         const p = profile.data[0];
         financials.marketCap = p.mktCap;
@@ -78,24 +91,24 @@ async function financialNode(state, config) {
         financials.eps = p.price / (p.mktCap / (p.mktCap / p.price)); // rough approximation if eps not in profile
       }
       
-      const metrics = await axios.get(`https://financialmodelingprep.com/api/v3/key-metrics/${company}?limit=1&apikey=${fmpKey}`);
+      const metrics = await axios.get(`https://financialmodelingprep.com/api/v3/key-metrics/${ticker}?limit=1&apikey=${fmpKey}`);
       if (metrics.data && metrics.data.length > 0) {
         const m = metrics.data[0];
         financials.peRatio = m.peRatio;
-        financials.revenue = m.revenuePerShare * (financials.marketCap / profile.data[0].price);
-        financials.netIncome = m.netIncomePerShare * (financials.marketCap / profile.data[0].price);
+        financials.revenue = m.revenuePerShare * (financials.marketCap / (profile.data[0]?.price || 1));
+        financials.netIncome = m.netIncomePerShare * (financials.marketCap / (profile.data[0]?.price || 1));
       }
     } catch (e) {
       console.warn("FMP API failed:", e.message);
     }
   } else {
-    // Generate some fake financial data for demo purposes
+    // Generate some fake financial data for demo purposes (scaled for INR / Indian Market - Crores)
     financials = {
-      revenue: Math.random() * 100000000000,
-      netIncome: Math.random() * 20000000000,
-      eps: (Math.random() * 10).toFixed(2),
-      peRatio: (Math.random() * 50).toFixed(2),
-      marketCap: Math.random() * 1000000000000,
+      revenue: Math.random() * 500000, // up to 5 lakh crores
+      netIncome: Math.random() * 50000,
+      eps: (Math.random() * 100).toFixed(2),
+      peRatio: (Math.random() * 80).toFixed(2),
+      marketCap: Math.random() * 2000000, // up to 20 lakh crores
       revenueGrowth: (Math.random() * 30).toFixed(1),
       profitMargin: (Math.random() * 25).toFixed(1)
     };
@@ -158,7 +171,9 @@ async function analysisNode(state, config) {
   }
 
   const prompt = `
-  You are an expert financial analyst. Analyze the following information for ${company}.
+  You are an expert financial analyst strictly following SEBI, BSE, and NSE guidelines. 
+  Analyze the following information for ${company} with a focus on the Indian market.
+  IMPORTANT: All financial figures must be reported in Indian Rupees (₹) and formatted in Crores (Cr) or Lakhs where appropriate.
   
   OVERVIEW:
   ${JSON.stringify(overview)}

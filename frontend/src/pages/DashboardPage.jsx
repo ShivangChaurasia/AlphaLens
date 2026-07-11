@@ -144,7 +144,7 @@ const DashboardPage = () => {
             transition={{ delay: 0.1 }}
             className="glass-card rounded-3xl p-8 relative overflow-hidden"
           >
-            <div className={`absolute top-0 right-0 w-64 h-64 blur-[100px] pointer-events-none rounded-full
+            <div className={`absolute top-0 right-0 w-64 h-64 blur-[100px] pointer-events-none rounded-full animate-blob
               ${data.analysis?.recommendation === 'INVEST' ? 'bg-green-500/20' : 'bg-red-500/20'}`} />
             
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -174,8 +174,8 @@ const DashboardPage = () => {
                       { name: 'Current', revenue: data.financials?.revenue || 120, income: data.financials?.netIncome || 30 }
                     ]}>
                       <XAxis dataKey="name" stroke="#64748b" />
-                      <YAxis stroke="#64748b" tickFormatter={(val) => `$${val/1000}B`} />
-                      <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }} />
+                      <YAxis stroke="#64748b" width={80} tickFormatter={(val) => `₹${(val/10000000).toFixed(0)}Cr`} />
+                      <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }} formatter={(val) => `₹${(val/10000000).toFixed(1)} Cr`} />
                       <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
                     </BarChart>
@@ -270,7 +270,7 @@ const DashboardPage = () => {
             <h3 className="font-semibold text-[var(--color-text-main)] mb-2">Key Metrics</h3>
             <div className="flex justify-between items-center py-2 border-b border-[var(--color-border-subtle)]">
               <span className="text-[var(--color-text-muted)]">Market Cap</span>
-              <span className="font-medium">${(data.financials?.marketCap / 1e9).toFixed(2) || 'N/A'}B</span>
+              <span className="font-medium">₹{(data.financials?.marketCap / 10000000).toFixed(2) || 'N/A'} Cr</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-[var(--color-border-subtle)]">
               <span className="text-[var(--color-text-muted)]">P/E Ratio</span>

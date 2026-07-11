@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, TrendingUp } from 'lucide-react';
-
+import { TrendingUp, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../App';
 const Navbar = () => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--color-glass-border)] h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
@@ -17,13 +19,13 @@ const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-4">
-            <Link 
-              to="/settings" 
+            <button 
+              onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-[var(--color-overlay-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] transition-colors"
-              title="Settings"
+              title="Toggle Theme"
             >
-              <Settings className="w-5 h-5" />
-            </Link>
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
