@@ -43,14 +43,14 @@ const LandingPage = () => {
           className="relative max-w-xl mx-auto mb-20 group"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
-          <div className="relative flex items-center bg-cards rounded-2xl border border-white/10 p-2 shadow-2xl">
-            <Search className="w-6 h-6 text-gray-400 ml-4" />
+          <div className="relative flex items-center bg-[var(--color-cards)] rounded-2xl border border-[var(--color-glass-border)] p-2 shadow-2xl">
+            <Search className="w-6 h-6 text-[var(--color-text-muted)] ml-4" />
             <input 
               type="text" 
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               placeholder="Enter company name (e.g., Apple, Tesla)..."
-              className="w-full bg-transparent border-none outline-none text-white px-4 py-4 text-lg placeholder-gray-500"
+              className="w-full bg-transparent border-none outline-none text-[var(--color-text-main)] px-4 py-4 text-lg placeholder-gray-500"
               required
             />
             <button 
@@ -91,11 +91,11 @@ const LandingPage = () => {
 
 const FeatureCard = ({ icon, title, description }) => (
   <div className="glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform duration-300">
-    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+    <div className="w-12 h-12 rounded-xl bg-[var(--color-overlay)] flex items-center justify-center mb-4 border border-[var(--color-border-subtle)]">
       {icon}
     </div>
-    <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
-    <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+    <h3 className="text-xl font-semibold mb-2 text-[var(--color-text-main)]">{title}</h3>
+    <p className="text-[var(--color-text-muted)] text-sm leading-relaxed">{description}</p>
   </div>
 );
 

@@ -3,17 +3,18 @@ const { runResearchAgent } = require('../agents/researchAgent');
 exports.researchCompany = async (req, res) => {
   try {
     const { company } = req.body;
-    const groqKey = req.headers['x-groq-key'];
-    const geminiKey = req.headers['x-gemini-key'];
-    const tavilyKey = req.headers['x-tavily-key'];
-    const fmpKey = req.headers['x-fmp-key'];
+    
+    const groqKey = process.env.GROQ_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const tavilyKey = process.env.TAVILY_API_KEY;
+    const fmpKey = process.env.FMP_API_KEY;
     const aiProvider = req.headers['x-ai-provider'] || 'groq';
 
     if (!company) {
       return res.status(400).json({ error: 'Company name is required' });
     }
     if (!groqKey && !geminiKey) {
-      return res.status(401).json({ error: 'At least one AI API key (Groq or Gemini) is required' });
+      return res.status(401).json({ error: 'Server configuration error: No AI API keys are configured.' });
     }
 
     const result = await runResearchAgent(company, groqKey, geminiKey, tavilyKey, fmpKey, aiProvider);

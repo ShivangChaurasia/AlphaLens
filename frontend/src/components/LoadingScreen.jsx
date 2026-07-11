@@ -31,7 +31,7 @@ const LoadingScreen = ({ companyName }) => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-600/10 pointer-events-none" />
         
         <div className="relative z-10">
-          <div className="w-24 h-24 rounded-full bg-black/30 border border-white/10 mx-auto mb-8 flex items-center justify-center relative">
+          <div className="w-24 h-24 rounded-full bg-[var(--color-overlay)] border border-[var(--color-glass-border)] mx-auto mb-8 flex items-center justify-center relative">
             <Loader2 className="w-10 h-10 text-primary animate-spin" />
             <motion.div 
               className="absolute inset-0 rounded-full border-t-2 border-primary"
@@ -41,7 +41,7 @@ const LoadingScreen = ({ companyName }) => {
           </div>
 
           <h2 className="text-2xl font-bold mb-2">Analyzing {companyName}</h2>
-          <p className="text-gray-400 mb-10">AlphaLens AI is performing deep research...</p>
+          <p className="text-[var(--color-text-muted)] mb-10">AlphaLens AI is performing deep research...</p>
 
           <div className="space-y-4 text-left max-w-sm mx-auto">
             {stages.map((stage, idx) => {
@@ -54,11 +54,11 @@ const LoadingScreen = ({ companyName }) => {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center border 
                     ${isActive ? 'bg-primary/20 border-primary text-primary' : 
                       isPast ? 'bg-green-500/20 border-green-500 text-green-400' : 
-                      'bg-white/5 border-white/10 text-gray-500'}`}
+                      'bg-[var(--color-overlay)] border-[var(--color-glass-border)] text-[var(--color-text-muted)]'}`}
                   >
                     {isPast ? <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> : <Icon className="w-5 h-5" />}
                   </div>
-                  <span className={`font-medium ${isActive ? 'text-white' : isPast ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <span className={`font-medium ${isActive ? 'text-[var(--color-text-main)]' : isPast ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-text-muted)]'}`}>
                     {stage.text}
                   </span>
                 </div>

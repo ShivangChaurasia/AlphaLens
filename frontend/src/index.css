@@ -1,21 +1,60 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", sans-serif;
-  
+:root {
   --color-primary: #2563eb;
   --color-success: #22c55e;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
+
+  /* Light Theme (default) */
+  --color-background: #f8fafc;
+  --color-cards: #ffffff;
+  --color-text-main: #0f172a;
+  --color-text-muted: #475569;
+  --color-glass: rgba(255, 255, 255, 0.7);
+  --color-glass-card: rgba(255, 255, 255, 0.8);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-border-subtle: rgba(0, 0, 0, 0.05);
+  --color-overlay: rgba(0, 0, 0, 0.05);
+  --color-overlay-hover: rgba(0, 0, 0, 0.1);
+}
+
+:root.dark {
+  /* Dark Theme */
   --color-background: #0f172a;
   --color-cards: #111827;
+  --color-text-main: #ffffff;
+  --color-text-muted: #94a3b8;
   --color-glass: rgba(17, 24, 39, 0.7);
+  --color-glass-card: rgba(0, 0, 0, 0.2);
   --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-overlay: rgba(255, 255, 255, 0.05);
+  --color-overlay-hover: rgba(255, 255, 255, 0.1);
+}
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  
+  --color-primary: var(--color-primary);
+  --color-success: var(--color-success);
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-background: var(--color-background);
+  --color-cards: var(--color-cards);
+  --color-text-main: var(--color-text-main);
+  --color-text-muted: var(--color-text-muted);
+  --color-glass: var(--color-glass);
+  --color-glass-card: var(--color-glass-card);
+  --color-glass-border: var(--color-glass-border);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-overlay: var(--color-overlay);
+  --color-overlay-hover: var(--color-overlay-hover);
 }
 
 @layer utilities {
   .glass-card {
-    background-color: var(--color-glass);
+    background-color: var(--color-glass-card);
     backdrop-filter: blur(12px);
     border: 1px solid var(--color-glass-border);
   }
