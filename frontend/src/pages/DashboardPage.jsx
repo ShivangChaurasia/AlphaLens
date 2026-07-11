@@ -31,7 +31,8 @@ const DashboardPage = () => {
         
         const aiProvider = localStorage.getItem('AI_PROVIDER') || 'groq';
 
-        const response = await fetch('http://localhost:3001/api/research', {
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_BASE}/api/research`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

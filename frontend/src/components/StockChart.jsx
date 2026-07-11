@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   AreaChart,
   Area,
@@ -31,9 +30,13 @@ export default function StockChart({ ticker }) {
     const fetchChartData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:3001/api/chart/${ticker}?range=${selectedRange}`);
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_BASE}/api/chart/${ticker}?range=${selectedRange}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        
         // Format dates for display
-        const formattedData = response.data.map(item => {
+        const formattedData = data.map(item => {
           const dateObj = new Date(item.date);
           let dateStr = '';
           if (selectedRange === '1d' || selectedRange === '1wk') {
