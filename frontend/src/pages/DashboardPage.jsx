@@ -102,13 +102,34 @@ const DashboardPage = () => {
           <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Search
           </button>
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-[var(--color-glass-border)] shadow-xl">
-              <Building2 className="w-8 h-8 text-primary" />
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-[var(--color-glass-border)] shadow-xl">
+                <Building2 className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-text-main)] tracking-tight">{data.company}</h1>
+                <p className="text-[var(--color-text-muted)] mt-1">{data.overview?.industry || 'Technology'} • {data.overview?.headquarters || 'USA'}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-text-main)] tracking-tight">{data.company}</h1>
-              <p className="text-[var(--color-text-muted)] mt-1">{data.overview?.industry || 'Technology'} • {data.overview?.headquarters || 'USA'}</p>
+            
+            <div className="hidden md:block w-px h-12 bg-[var(--color-border-subtle)] mx-2"></div>
+            
+            <div className="bg-[var(--color-overlay)] p-3 rounded-xl border border-[var(--color-glass-border)]">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-bold text-[var(--color-text-main)]">
+                  ₹{Number(data.financials?.currentPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className={`text-sm font-semibold px-2 py-0.5 rounded-full ${Number(data.financials?.priceChange) >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                  {Number(data.financials?.priceChange) >= 0 ? '▲' : '▼'} {Math.abs(Number(data.financials?.priceChange || 0)).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">Strict Stop Loss:</span>
+                <span className="text-sm font-bold text-red-400">
+                  ₹{Number(data.financials?.stopLoss || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -169,10 +190,10 @@ const DashboardPage = () => {
                <h3 className="text-lg font-semibold mb-4 text-[var(--color-text-main)]">Revenue & Income (Est)</h3>
                <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                      { name: 'Prev', revenue: data.financials?.revenue ? data.financials.revenue * 0.9 : 100, income: data.financials?.netIncome ? data.financials.netIncome * 0.9 : 20 },
-                      { name: 'Current', revenue: data.financials?.revenue || 120, income: data.financials?.netIncome || 30 }
-                    ]}>
+                      <BarChart data={[
+                        { name: 'Prev', revenue: data.financials?.revenue ? data.financials.revenue * 0.9 : 10000000000, income: data.financials?.netIncome ? data.financials.netIncome * 0.9 : 2000000000 },
+                        { name: 'Current', revenue: data.financials?.revenue || 12000000000, income: data.financials?.netIncome || 3000000000 }
+                      ]}>
                       <XAxis dataKey="name" stroke="#64748b" />
                       <YAxis stroke="#64748b" width={80} tickFormatter={(val) => `₹${(val/10000000).toFixed(0)}Cr`} />
                       <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }} formatter={(val) => `₹${(val/10000000).toFixed(1)} Cr`} />

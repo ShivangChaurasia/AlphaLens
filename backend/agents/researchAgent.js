@@ -32,7 +32,7 @@ async function researchNode(state, config) {
   
   let overview = { industry: 'Unknown', headquarters: 'Unknown', description: 'No data' };
   
-  if (tavilyKey) {
+  if (tavilyKey && tavilyKey !== 'your_tavily_api_key_here' && tavilyKey !== '') {
     try {
       const response = await axios.post('https://api.tavily.com/search', {
         api_key: tavilyKey,
@@ -43,6 +43,7 @@ async function researchNode(state, config) {
       // We will rely on Gemini to extract CEO and industry later or just use the description
     } catch (e) {
       console.warn("Tavily search failed:", e.message);
+      overview.description = `Stubbed overview for ${company}. Needs Tavily API key. ${company} is a leading global company.`;
     }
   } else {
     overview.description = `Stubbed overview for ${company}. Needs Tavily API key. ${company} is a leading global company.`;
@@ -68,7 +69,23 @@ async function financialNode(state, config) {
     dividend: 0
   };
   
-  if (fmpKey) {
+  const generateFakeData = () => {
+    const currentPrice = Math.random() * 5000 + 100;
+    return {
+      revenue: Math.random() * 500000 * 10000000, // up to 5 lakh crores (absolute)
+      netIncome: Math.random() * 50000 * 10000000, // (absolute)
+      eps: (Math.random() * 100).toFixed(2),
+      peRatio: (Math.random() * 80).toFixed(2),
+      marketCap: Math.random() * 2000000 * 10000000, // up to 20 lakh crores (absolute)
+      revenueGrowth: (Math.random() * 30).toFixed(1),
+      profitMargin: (Math.random() * 25).toFixed(1),
+      currentPrice: currentPrice,
+      priceChange: (Math.random() * 10 - 5).toFixed(2), // random -5% to +5%
+      stopLoss: (currentPrice * 0.92).toFixed(2) // 8% trailing stop loss
+    };
+  };
+
+  if (fmpKey && fmpKey !== 'your_financial_modeling_prep_api_key_here' && fmpKey !== '') {
     try {
       // Step 1: Search for the company ticker on NSE/BSE
       let ticker = company;
@@ -89,6 +106,9 @@ async function financialNode(state, config) {
         financials.marketCap = p.mktCap;
         financials.industry = p.industry;
         financials.eps = p.price / (p.mktCap / (p.mktCap / p.price)); // rough approximation if eps not in profile
+        financials.currentPrice = p.price;
+        financials.priceChange = p.changes;
+        financials.stopLoss = (p.price * 0.92).toFixed(2);
       }
       
       const metrics = await axios.get(`https://financialmodelingprep.com/api/v3/key-metrics/${ticker}?limit=1&apikey=${fmpKey}`);
@@ -99,19 +119,12 @@ async function financialNode(state, config) {
         financials.netIncome = m.netIncomePerShare * (financials.marketCap / (profile.data[0]?.price || 1));
       }
     } catch (e) {
-      console.warn("FMP API failed:", e.message);
+      console.warn("FMP API failed:", e.message, "- Falling back to fake data");
+      financials = { ...financials, ...generateFakeData() };
     }
   } else {
     // Generate some fake financial data for demo purposes (scaled for INR / Indian Market - Crores)
-    financials = {
-      revenue: Math.random() * 500000, // up to 5 lakh crores
-      netIncome: Math.random() * 50000,
-      eps: (Math.random() * 100).toFixed(2),
-      peRatio: (Math.random() * 80).toFixed(2),
-      marketCap: Math.random() * 2000000, // up to 20 lakh crores
-      revenueGrowth: (Math.random() * 30).toFixed(1),
-      profitMargin: (Math.random() * 25).toFixed(1)
-    };
+    financials = { ...financials, ...generateFakeData() };
   }
   
   return { financials };
@@ -123,7 +136,7 @@ async function newsNode(state, config) {
   
   let news = [];
   
-  if (tavilyKey) {
+  if (tavilyKey && tavilyKey !== 'your_tavily_api_key_here' && tavilyKey !== '') {
     try {
        const response = await axios.post('https://api.tavily.com/search', {
         api_key: tavilyKey,
@@ -137,6 +150,11 @@ async function newsNode(state, config) {
       })).slice(0, 3);
     } catch (e) {
       console.warn("Tavily news failed:", e.message);
+      news = [
+        { title: `${company} announces new product lineup`, content: "Innovation drives stock up.", sentiment: 'positive' },
+        { title: `Analysts upgrade ${company} stock`, content: "Market sentiment improves.", sentiment: 'positive' },
+        { title: `${company} faces supply chain issues`, content: "Logistics impact quarterly outlook.", sentiment: 'negative' }
+      ];
     }
   } else {
     news = [
