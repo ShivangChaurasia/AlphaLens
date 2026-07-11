@@ -4,13 +4,13 @@ import { Key, Eye, EyeOff, Copy, Check, Save, Trash2, AlertCircle } from 'lucide
 
 const SettingsPage = () => {
   const [keys, setKeys] = useState({
-    gemini: '',
+    groq: '',
     tavily: '',
     fmp: ''
   });
   
   const [showKeys, setShowKeys] = useState({
-    gemini: false,
+    groq: false,
     tavily: false,
     fmp: false
   });
@@ -19,11 +19,11 @@ const SettingsPage = () => {
 
   useEffect(() => {
     // Load from local storage
-    const geminiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+    const groqKey = localStorage.getItem('GROQ_API_KEY') || '';
     const tavilyKey = localStorage.getItem('TAVILY_API_KEY') || '';
     const fmpKey = localStorage.getItem('FMP_API_KEY') || '';
     
-    setKeys({ gemini: geminiKey, tavily: tavilyKey, fmp: fmpKey });
+    setKeys({ groq: groqKey, tavily: tavilyKey, fmp: fmpKey });
   }, []);
 
   const showToast = (message, type = 'success') => {
@@ -61,17 +61,17 @@ const SettingsPage = () => {
 
       <div className="space-y-6">
         <ApiKeyCard 
-          title="Gemini API Key"
-          description="Required for AI analysis and investment recommendations. Get it from Google AI Studio."
-          value={keys.gemini}
-          onChange={(e) => setKeys(prev => ({ ...prev, gemini: e.target.value }))}
-          onSave={() => handleSave('gemini', 'GEMINI_API_KEY')}
-          onClear={() => handleClear('gemini', 'GEMINI_API_KEY')}
-          onCopy={() => copyToClipboard(keys.gemini)}
-          showKey={showKeys.gemini}
-          toggleShow={() => setShowKeys(prev => ({ ...prev, gemini: !prev.gemini }))}
-          placeholder="AIzaSy..."
-          status={keys.gemini ? 'configured' : 'missing'}
+          title="Groq API Key"
+          description="Required for AI analysis and investment recommendations. Get it from console.groq.com."
+          value={keys.groq}
+          onChange={(e) => setKeys(prev => ({ ...prev, groq: e.target.value }))}
+          onSave={() => handleSave('groq', 'GROQ_API_KEY')}
+          onClear={() => handleClear('groq', 'GROQ_API_KEY')}
+          onCopy={() => copyToClipboard(keys.groq)}
+          showKey={showKeys.groq}
+          toggleShow={() => setShowKeys(prev => ({ ...prev, groq: !prev.groq }))}
+          placeholder="gsk_..."
+          status={keys.groq ? 'configured' : 'missing'}
         />
 
         <ApiKeyCard 

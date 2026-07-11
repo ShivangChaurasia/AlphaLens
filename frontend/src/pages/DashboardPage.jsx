@@ -26,16 +26,16 @@ const DashboardPage = () => {
         setLoading(true);
         setError(null);
         
-        const geminiKey = localStorage.getItem('GEMINI_API_KEY');
-        if (!geminiKey) {
-          throw new Error('Gemini API Key is missing. Please configure it in settings.');
+        const groqKey = localStorage.getItem('GROQ_API_KEY');
+        if (!groqKey) {
+          throw new Error('Groq API Key is missing. Please configure it in settings.');
         }
 
         const response = await fetch('http://localhost:3001/api/research', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-gemini-key': geminiKey,
+            'x-groq-key': groqKey,
             'x-tavily-key': localStorage.getItem('TAVILY_API_KEY') || '',
             'x-fmp-key': localStorage.getItem('FMP_API_KEY') || ''
           },

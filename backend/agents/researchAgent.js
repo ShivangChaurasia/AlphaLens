@@ -1,5 +1,5 @@
 const { StateGraph, START, END, Annotation } = require('@langchain/langgraph');
-const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
+const { ChatGroq } = require('@langchain/groq');
 const axios = require('axios');
 
 const AgentState = Annotation.Root({
@@ -137,11 +137,11 @@ async function newsNode(state, config) {
 
 async function analysisNode(state, config) {
   const { company, overview, financials, news } = state;
-  const { geminiKey } = config.configurable;
+  const { groqKey } = config.configurable;
   
-  const llm = new ChatGoogleGenerativeAI({
-    modelName: "gemini-2.5-flash",
-    apiKey: geminiKey,
+  const llm = new ChatGroq({
+    modelName: "llama3-70b-8192",
+    apiKey: groqKey,
     temperature: 0.2,
   });
 
@@ -212,10 +212,10 @@ const builder = new StateGraph(AgentState)
 
 const graph = builder.compile();
 
-async function runResearchAgent(company, geminiKey, tavilyKey, fmpKey) {
+async function runResearchAgent(company, groqKey, tavilyKey, fmpKey) {
   const result = await graph.invoke(
     { company },
-    { configurable: { geminiKey, tavilyKey, fmpKey } }
+    { configurable: { groqKey, tavilyKey, fmpKey } }
   );
   
   return {
