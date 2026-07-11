@@ -1,5 +1,6 @@
 const { StateGraph, START, END, Annotation } = require('@langchain/langgraph');
 const { ChatGroq } = require('@langchain/groq');
+const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
 const axios = require('axios');
 
 const AgentState = Annotation.Root({
@@ -137,13 +138,24 @@ async function newsNode(state, config) {
 
 async function analysisNode(state, config) {
   const { company, overview, financials, news } = state;
-  const { groqKey } = config.configurable;
+  const { groqKey, geminiKey, aiProvider } = config.configurable;
   
-  const llm = new ChatGroq({
-    modelName: "llama3-70b-8192",
-    apiKey: groqKey,
-    temperature: 0.2,
-  });
+  let llm;
+  if (aiProvider === 'gemini' && geminiKey) {
+    llm = new ChatGoogleGenerativeAI({
+      modelName: "gemini-2.5-flash",
+      apiKey: geminiKey,
+      temperature: 0.2,
+    });
+  } else if (groqKey) {
+    llm = new ChatGroq({
+      modelName: "llama3-70b-8192",
+      apiKey: groqKey,
+      temperature: 0.2,
+    });
+  } else {
+    throw new Error("No valid AI provider key provided.");
+  }
 
   const prompt = `
   You are an expert financial analyst. Analyze the following information for ${company}.
@@ -212,10 +224,10 @@ const builder = new StateGraph(AgentState)
 
 const graph = builder.compile();
 
-async function runResearchAgent(company, groqKey, tavilyKey, fmpKey) {
+async function runResearchAgent(company, groqKey, geminiKey, tavilyKey, fmpKey, aiProvider = 'groq') {
   const result = await graph.invoke(
     { company },
-    { configurable: { groqKey, tavilyKey, fmpKey } }
+    { configurable: { groqKey, geminiKey, tavilyKey, fmpKey, aiProvider } }
   );
   
   return {

@@ -5,25 +5,32 @@ import { Key, Eye, EyeOff, Copy, Check, Save, Trash2, AlertCircle } from 'lucide
 const SettingsPage = () => {
   const [keys, setKeys] = useState({
     groq: '',
+    gemini: '',
     tavily: '',
     fmp: ''
   });
   
   const [showKeys, setShowKeys] = useState({
     groq: false,
+    gemini: false,
     tavily: false,
     fmp: false
   });
+  
+  const [aiProvider, setAiProvider] = useState('groq');
   
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
     // Load from local storage
     const groqKey = localStorage.getItem('GROQ_API_KEY') || '';
+    const geminiKey = localStorage.getItem('GEMINI_API_KEY') || '';
     const tavilyKey = localStorage.getItem('TAVILY_API_KEY') || '';
     const fmpKey = localStorage.getItem('FMP_API_KEY') || '';
+    const provider = localStorage.getItem('AI_PROVIDER') || (groqKey ? 'groq' : 'gemini');
     
-    setKeys({ groq: groqKey, tavily: tavilyKey, fmp: fmpKey });
+    setKeys({ groq: groqKey, gemini: geminiKey, tavily: tavilyKey, fmp: fmpKey });
+    setAiProvider(provider);
   }, []);
 
   const showToast = (message, type = 'success') => {
@@ -34,6 +41,12 @@ const SettingsPage = () => {
   const handleSave = (keyName, storageKey) => {
     localStorage.setItem(storageKey, keys[keyName]);
     showToast(`${keyName.toUpperCase()} API Key saved successfully!`);
+  };
+
+  const handleProviderChange = (provider) => {
+    setAiProvider(provider);
+    localStorage.setItem('AI_PROVIDER', provider);
+    showToast(`AI Provider set to ${provider.charAt(0).toUpperCase() + provider.slice(1)}!`);
   };
 
   const handleClear = (keyName, storageKey) => {
@@ -60,9 +73,27 @@ const SettingsPage = () => {
       </motion.div>
 
       <div className="space-y-6">
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">Select Preferred AI Provider</h3>
+          <div className="flex gap-4">
+            <button 
+              onClick={() => handleProviderChange('groq')}
+              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all border ${aiProvider === 'groq' ? 'bg-primary/20 border-primary text-primary' : 'bg-black/20 border-white/10 text-gray-400 hover:border-white/30'}`}
+            >
+              Groq (Llama 3 70B)
+            </button>
+            <button 
+              onClick={() => handleProviderChange('gemini')}
+              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all border ${aiProvider === 'gemini' ? 'bg-primary/20 border-primary text-primary' : 'bg-black/20 border-white/10 text-gray-400 hover:border-white/30'}`}
+            >
+              Google Gemini (2.5 Flash)
+            </button>
+          </div>
+        </div>
+
         <ApiKeyCard 
           title="Groq API Key"
-          description="Required for AI analysis and investment recommendations. Get it from console.groq.com."
+          description="Required for AI analysis. Get it from console.groq.com."
           value={keys.groq}
           onChange={(e) => setKeys(prev => ({ ...prev, groq: e.target.value }))}
           onSave={() => handleSave('groq', 'GROQ_API_KEY')}
@@ -72,6 +103,20 @@ const SettingsPage = () => {
           toggleShow={() => setShowKeys(prev => ({ ...prev, groq: !prev.groq }))}
           placeholder="gsk_..."
           status={keys.groq ? 'configured' : 'missing'}
+        />
+
+        <ApiKeyCard 
+          title="Gemini API Key"
+          description="Required for AI analysis. Get it from Google AI Studio."
+          value={keys.gemini}
+          onChange={(e) => setKeys(prev => ({ ...prev, gemini: e.target.value }))}
+          onSave={() => handleSave('gemini', 'GEMINI_API_KEY')}
+          onClear={() => handleClear('gemini', 'GEMINI_API_KEY')}
+          onCopy={() => copyToClipboard(keys.gemini)}
+          showKey={showKeys.gemini}
+          toggleShow={() => setShowKeys(prev => ({ ...prev, gemini: !prev.gemini }))}
+          placeholder="AIzaSy..."
+          status={keys.gemini ? 'configured' : 'missing'}
         />
 
         <ApiKeyCard 
