@@ -2,7 +2,8 @@ const { StateGraph, START, END, Annotation } = require('@langchain/langgraph');
 const { ChatGroq } = require('@langchain/groq');
 const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
 const axios = require('axios');
-const yahooFinance = require('yahoo-finance2').default;
+const YahooFinance = require('yahoo-finance2').default;
+const yahooFinance = new YahooFinance();
 const AgentState = Annotation.Root({
   company: Annotation({
     reducer: (x, y) => y ? y : x,
@@ -104,6 +105,7 @@ async function financialNode(state, config) {
     if (ticker) {
       const quote = await yahooFinance.quoteSummary(ticker, { modules: ['price', 'defaultKeyStatistics', 'financialData', 'summaryProfile'] });
       
+      financials.ticker = ticker;
       financials.marketCap = quote.price?.marketCap || 0;
       financials.industry = quote.summaryProfile?.industry || 'Unknown';
       financials.currentPrice = quote.price?.regularMarketPrice || 0;

@@ -3,7 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
 import { AlertCircle, Download, FileText, ArrowLeft, Building2, TrendingUp, DollarSign, Brain } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { 
+  BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer 
+} from 'recharts';
+import StockChart from '../components/StockChart';
 
 const DashboardPage = () => {
   const location = useLocation();
@@ -186,22 +189,14 @@ const DashboardPage = () => {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
-            <div className="glass-card rounded-3xl p-6">
-               <h3 className="text-lg font-semibold mb-4 text-[var(--color-text-main)]">Revenue & Income (Est)</h3>
-               <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={[
-                        { name: 'Prev', revenue: data.financials?.revenue ? data.financials.revenue * 0.9 : 10000000000, income: data.financials?.netIncome ? data.financials.netIncome * 0.9 : 2000000000 },
-                        { name: 'Current', revenue: data.financials?.revenue || 12000000000, income: data.financials?.netIncome || 3000000000 }
-                      ]}>
-                      <XAxis dataKey="name" stroke="#64748b" />
-                      <YAxis stroke="#64748b" width={110} tickFormatter={(val) => `₹${(val/10000000).toLocaleString('en-IN', { maximumFractionDigits: 0 })}Cr`} />
-                      <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }} formatter={(val) => `₹${(val/10000000).toFixed(1)} Cr`} />
-                      <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-               </div>
+            <div className="h-[400px]">
+              {data.financials?.ticker ? (
+                <StockChart ticker={data.financials.ticker} />
+              ) : (
+                <div className="glass-card rounded-3xl p-6 h-full flex items-center justify-center text-[var(--color-text-muted)]">
+                  Loading chart data...
+                </div>
+              )}
             </div>
 
             <div className="glass-card rounded-3xl p-6">
@@ -299,11 +294,15 @@ const DashboardPage = () => {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-[var(--color-border-subtle)]">
               <span className="text-[var(--color-text-muted)]">Revenue Growth</span>
-              <span className="font-medium text-green-400">+{data.financials?.revenueGrowth || 'N/A'}%</span>
+              <span className={`font-medium ${Number(data.financials?.revenueGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {Number(data.financials?.revenueGrowth) > 0 ? '+' : ''}{data.financials?.revenueGrowth || 'N/A'}%
+              </span>
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-[var(--color-text-muted)]">Profit Margin</span>
-              <span className="font-medium">{data.financials?.profitMargin || 'N/A'}%</span>
+              <span className={`font-medium ${Number(data.financials?.profitMargin) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {Number(data.financials?.profitMargin) > 0 ? '+' : ''}{data.financials?.profitMargin || 'N/A'}%
+              </span>
             </div>
           </motion.div>
 
