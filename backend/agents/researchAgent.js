@@ -121,6 +121,9 @@ async function financialNode(state, config) {
       throw new Error("Ticker not found on Yahoo Finance");
     }
   } catch (e) {
+    if (e.message === "Ticker not found on Yahoo Finance") {
+      throw new Error(`Could not find any stock data for "${company}". Please check the spelling and try again.`);
+    }
     console.warn("Yahoo Finance API failed:", e.message, "- Falling back to fake data");
     financials = { ...financials, ...generateFakeData() };
   }
