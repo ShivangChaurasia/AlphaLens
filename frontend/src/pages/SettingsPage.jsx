@@ -80,7 +80,7 @@ const SettingsPage = () => {
               onClick={() => handleProviderChange('groq')}
               className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all border ${aiProvider === 'groq' ? 'bg-primary/20 border-primary text-primary' : 'bg-black/20 border-white/10 text-gray-400 hover:border-white/30'}`}
             >
-              Groq (Llama 3 70B)
+              Groq (Llama 3.3 70B)
             </button>
             <button 
               onClick={() => handleProviderChange('gemini')}
