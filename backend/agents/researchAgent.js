@@ -2,7 +2,7 @@ const { StateGraph, START, END, Annotation } = require('@langchain/langgraph');
 const { ChatGroq } = require('@langchain/groq');
 const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
 const axios = require('axios');
-
+const yahooFinance = require('yahoo-finance2').default;
 const AgentState = Annotation.Root({
   company: Annotation({
     reducer: (x, y) => y ? y : x,
@@ -70,60 +70,56 @@ async function financialNode(state, config) {
   };
   
   const generateFakeData = () => {
-    const currentPrice = Math.random() * 5000 + 100;
+    // Generate a deterministic hash from the company name
+    let hash = 0;
+    for (let i = 0; i < company.length; i++) {
+      hash = (hash << 5) - hash + company.charCodeAt(i);
+      hash |= 0;
+    }
+    hash = Math.abs(hash) || 1; // ensure non-zero
+    
+    // Simple pseudo-random number generator using the hash as a seed
+    const rand = (n) => ((hash * n * 9301 + 49297) % 233280) / 233280;
+
+    const currentPrice = rand(1) * 5000 + 100;
     return {
-      revenue: Math.random() * 500000 * 10000000, // up to 5 lakh crores (absolute)
-      netIncome: Math.random() * 50000 * 10000000, // (absolute)
-      eps: (Math.random() * 100).toFixed(2),
-      peRatio: (Math.random() * 80).toFixed(2),
-      marketCap: Math.random() * 2000000 * 10000000, // up to 20 lakh crores (absolute)
-      revenueGrowth: (Math.random() * 30).toFixed(1),
-      profitMargin: (Math.random() * 25).toFixed(1),
+      revenue: rand(2) * 500000 * 10000000, 
+      netIncome: rand(3) * 50000 * 10000000, 
+      eps: (rand(4) * 100).toFixed(2),
+      peRatio: (rand(5) * 80).toFixed(2),
+      marketCap: rand(6) * 2000000 * 10000000, 
+      revenueGrowth: (rand(7) * 30).toFixed(1),
+      profitMargin: (rand(8) * 25).toFixed(1),
       currentPrice: currentPrice,
-      priceChange: (Math.random() * 10 - 5).toFixed(2), // random -5% to +5%
-      stopLoss: (currentPrice * 0.92).toFixed(2) // 8% trailing stop loss
+      priceChange: (rand(9) * 10 - 5).toFixed(2), 
+      stopLoss: (currentPrice * 0.92).toFixed(2) 
     };
   };
 
-  if (fmpKey && fmpKey !== 'your_financial_modeling_prep_api_key_here' && fmpKey !== '') {
-    try {
-      // Step 1: Search for the company ticker on NSE/BSE
-      let ticker = company;
-      const searchRes = await axios.get(`https://financialmodelingprep.com/api/v3/search?query=${company}&exchange=NSE&apikey=${fmpKey}`);
-      if (searchRes.data && searchRes.data.length > 0) {
-        ticker = searchRes.data[0].symbol;
-      } else {
-        // Fallback to BSE if NSE not found
-        const bseSearch = await axios.get(`https://financialmodelingprep.com/api/v3/search?query=${company}&exchange=BSE&apikey=${fmpKey}`);
-        if (bseSearch.data && bseSearch.data.length > 0) {
-          ticker = bseSearch.data[0].symbol;
-        }
-      }
+  try {
+    const searchRes = await yahooFinance.search(company, { quotesCount: 5 });
+    const indianTicker = searchRes.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
+    const ticker = indianTicker ? indianTicker.symbol : (searchRes.quotes[0] ? searchRes.quotes[0].symbol : null);
 
-      const profile = await axios.get(`https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${fmpKey}`);
-      if (profile.data && profile.data.length > 0) {
-        const p = profile.data[0];
-        financials.marketCap = p.mktCap;
-        financials.industry = p.industry;
-        financials.eps = p.price / (p.mktCap / (p.mktCap / p.price)); // rough approximation if eps not in profile
-        financials.currentPrice = p.price;
-        financials.priceChange = p.changes;
-        financials.stopLoss = (p.price * 0.92).toFixed(2);
-      }
+    if (ticker) {
+      const quote = await yahooFinance.quoteSummary(ticker, { modules: ['price', 'defaultKeyStatistics', 'financialData', 'summaryProfile'] });
       
-      const metrics = await axios.get(`https://financialmodelingprep.com/api/v3/key-metrics/${ticker}?limit=1&apikey=${fmpKey}`);
-      if (metrics.data && metrics.data.length > 0) {
-        const m = metrics.data[0];
-        financials.peRatio = m.peRatio;
-        financials.revenue = m.revenuePerShare * (financials.marketCap / (profile.data[0]?.price || 1));
-        financials.netIncome = m.netIncomePerShare * (financials.marketCap / (profile.data[0]?.price || 1));
-      }
-    } catch (e) {
-      console.warn("FMP API failed:", e.message, "- Falling back to fake data");
-      financials = { ...financials, ...generateFakeData() };
+      financials.marketCap = quote.price?.marketCap || 0;
+      financials.industry = quote.summaryProfile?.industry || 'Unknown';
+      financials.currentPrice = quote.price?.regularMarketPrice || 0;
+      financials.priceChange = quote.price?.regularMarketChangePercent ? (quote.price.regularMarketChangePercent * 100).toFixed(2) : 0;
+      financials.eps = quote.defaultKeyStatistics?.trailingEps || 0;
+      financials.peRatio = quote.summaryProfile?.trailingPE || (quote.defaultKeyStatistics?.forwardPE || 0);
+      financials.revenue = quote.financialData?.totalRevenue || 0;
+      financials.netIncome = quote.financialData?.netIncomeToCommon || 0;
+      financials.revenueGrowth = quote.financialData?.revenueGrowth ? (quote.financialData.revenueGrowth * 100).toFixed(1) : 0;
+      financials.profitMargin = quote.financialData?.profitMargins ? (quote.financialData.profitMargins * 100).toFixed(1) : 0;
+      financials.stopLoss = (financials.currentPrice * 0.92).toFixed(2);
+    } else {
+      throw new Error("Ticker not found on Yahoo Finance");
     }
-  } else {
-    // Generate some fake financial data for demo purposes (scaled for INR / Indian Market - Crores)
+  } catch (e) {
+    console.warn("Yahoo Finance API failed:", e.message, "- Falling back to fake data");
     financials = { ...financials, ...generateFakeData() };
   }
   

@@ -195,7 +195,7 @@ const DashboardPage = () => {
                         { name: 'Current', revenue: data.financials?.revenue || 12000000000, income: data.financials?.netIncome || 3000000000 }
                       ]}>
                       <XAxis dataKey="name" stroke="#64748b" />
-                      <YAxis stroke="#64748b" width={80} tickFormatter={(val) => `₹${(val/10000000).toFixed(0)}Cr`} />
+                      <YAxis stroke="#64748b" width={110} tickFormatter={(val) => `₹${(val/10000000).toLocaleString('en-IN', { maximumFractionDigits: 0 })}Cr`} />
                       <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }} formatter={(val) => `₹${(val/10000000).toFixed(1)} Cr`} />
                       <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
