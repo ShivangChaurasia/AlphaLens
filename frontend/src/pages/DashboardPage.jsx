@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
-import { AlertCircle, Download, FileText, ArrowLeft, Building2, TrendingUp, DollarSign } from 'lucide-react';
+import { AlertCircle, Download, FileText, ArrowLeft, Building2, TrendingUp, DollarSign, Brain } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 const DashboardPage = () => {
