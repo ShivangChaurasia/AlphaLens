@@ -1,5 +1,6 @@
 # AlphaLens AI
 
+**Live Demo:** [https://alphalensinvestments.vercel.app/](https://alphalensinvestments.vercel.app/)
 
 AlphaLens AI is an advanced, agentic financial research application designed to synthesize complex market data into actionable investment insights.
 
