@@ -1,6 +1,5 @@
 # AlphaLens AI
 
-![AlphaLens AI Banner](https://via.placeholder.com/1200x300?text=AlphaLens+AI+-+Intelligent+Investment+Research)
 
 AlphaLens AI is an advanced, agentic financial research application designed to synthesize complex market data into actionable investment insights.
 
