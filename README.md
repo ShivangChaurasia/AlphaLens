@@ -1,254 +1,208 @@
-<div align="center">
-  <img src="docs/images/banner.png" alt="AlphaLens AI Banner" width="100%" />
+# AlphaLens AI
 
-  # 📈 AlphaLens AI
-  **AI-Powered Investment Research Platform**
+![AlphaLens AI Banner](https://via.placeholder.com/1200x300?text=AlphaLens+AI+-+Intelligent+Investment+Research)
 
-  <p align="center">
-    <a href="https://github.com/ShivangChaurasia/AlphaLens/stargazers"><img src="https://img.shields.io/github/stars/ShivangChaurasia/AlphaLens?style=for-the-badge&color=yellow" alt="Stars Badge"/></a>
-    <a href="https://github.com/ShivangChaurasia/AlphaLens/network/members"><img src="https://img.shields.io/github/forks/ShivangChaurasia/AlphaLens?style=for-the-badge&color=orange" alt="Forks Badge"/></a>
-    <a href="https://github.com/ShivangChaurasia/AlphaLens/issues"><img src="https://img.shields.io/github/issues/ShivangChaurasia/AlphaLens?style=for-the-badge&color=red" alt="Issues Badge"/></a>
-    <a href="https://github.com/ShivangChaurasia/AlphaLens/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ShivangChaurasia/AlphaLens?style=for-the-badge&color=blue" alt="License Badge"/></a>
-  </p>
-</div>
+AlphaLens AI is an advanced, agentic financial research application designed to synthesize complex market data into actionable investment insights.
 
 ---
 
-## 📖 Project Overview
+## 1. Overview
 
-**AlphaLens AI** is an intelligent, AI-powered investment research platform designed to help retail investors, analysts, and financial enthusiasts make data-driven decisions. By simply entering a company's name or ticker, users receive a comprehensive, explainable AI-generated investment recommendation report.
+**What AlphaLens AI is:**
+AlphaLens AI is a full-stack web application powered by a sophisticated AI agent workflow. It automates the exhaustive process of fundamental financial research by aggregating real-time company data, latest news, and financial statements, and synthesizing them into comprehensive investment summaries.
 
-The application leverages a sophisticated Multi-Agent architecture using **LangGraph**, combining live web search, real-time financial market data, and the reasoning capabilities of **Google Gemini 2.5 Flash** to synthesize vast amounts of financial data into actionable intelligence.
+**What problem it solves:**
+Retail investors and financial analysts spend hours manually gathering data from fragmented sources (earnings reports, news outlets, financial APIs) to form a cohesive view of a company. AlphaLens AI solves this by deploying an autonomous AI agent to do the heavy lifting—researching, analyzing, and structuring the data into an easy-to-digest dashboard in seconds.
 
----
+**How the AI agent works:**
+The core of AlphaLens AI is a directed acyclic graph (DAG) workflow built with LangGraph. When a user requests an analysis for a stock ticker, the agent dynamically orchestrates specialized sub-tasks: it queries financial APIs for fundamental metrics, searches the web for recent news and sentiment, and feeds all collected context into a Large Language Model (LLM). The LLM then reasons over the data and outputs a structured JSON response containing recommendations, confidence scores, and risk/strength assessments.
 
-## 📑 Table of Contents
-
-- [Features](#-features)
-- [Screenshots](#-screenshots)
-- [Architecture Overview](#-architecture-overview)
-- [Tech Stack](#-tech-stack)
-- [How It Works](#-how-it-works)
-- [Project Structure](#-project-structure)
-- [Installation & Setup](#-installation--setup)
-- [Environment Variables](#-environment-variables)
-- [Trade-offs & Design Decisions](#-trade-offs--design-decisions)
-- [Future Improvements](#-future-improvements)
-- [Deployment](#-deployment)
-- [Assignment Compliance](#-assignment-compliance)
-- [Acknowledgements](#-acknowledgements)
+**Main technologies used:**
+- **Frontend:** React, Tailwind CSS
+- **Backend:** Node.js, Express.js
+- **AI / Agentic Framework:** LangGraph (JS/TS), Google Gemini Pro
+- **Data Providers:** Tavily (Web Search), Financial Modeling Prep (Financial Data)
 
 ---
 
-## ✨ Features
+## 2. How to Run It
 
-- **🧠 AI-Powered Investment Research:** Generates a final `INVEST` or `PASS` recommendation based on deep analysis.
-- **📊 Financial Analysis & Charting:** View real-time financials and interactive historical price charts (1D, 1W, 1M, 1Y, 5Y, Max).
-- **🏢 Company Overview:** Instantly fetches business models, leadership, and industry categorizations.
-- **📰 Latest Market News:** Real-time sentiment analysis of the latest headlines regarding the company.
-- **🎯 SWOT Analysis:** Auto-generated Strengths, Weaknesses, Opportunities, and Threats breakdown.
-- **⚠️ Risk Assessment & Confidence Score:** Quantifies AI certainty and highlights potential investment risks.
-- **💎 Beautiful Analytics Dashboard:** A responsive, glassmorphism-inspired UI with Framer Motion micro-animations.
-- **⚙️ Configurable AI Pipeline:** Users can seamlessly configure API keys and switch AI models via the settings panel.
-- **📄 Explainable AI Reasoning:** Fully transparent chain-of-thought analysis ensuring users understand *why* a recommendation was made.
+Follow these instructions to get AlphaLens AI running on your local machine.
 
----
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- API Keys for Gemini, Tavily, and Financial Modeling Prep (FMP)
 
-## 📸 Screenshots
+### Required APIs & Where to Obtain Them
+1. **`GEMINI_API_KEY`**: Obtain from Google AI Studio ([Get Key](https://aistudio.google.com/)).
+2. **`TAVILY_API_KEY`**: Obtain from Tavily for AI web search ([Get Key](https://tavily.com/)).
+3. **`FMP_API_KEY`**: Obtain from Financial Modeling Prep for stock data ([Get Key](https://site.financialmodelingprep.com/)).
 
-| Dashboard View | Financial Analysis |
-| :---: | :---: |
-| ![Landing Page](docs/images/landing.png) | ![Analysis](docs/images/analysis.png) |
+### Repository Setup
 
-*(Note: Replace placeholders with actual application screenshots)*
+Clone the repository to your local machine:
 
----
-
-## 🏗️ Architecture Overview
-
-The system uses a Multi-Agent architecture orchestrated by LangGraph, where specialized nodes fetch data, and an LLM synthesizes it.
-
-```mermaid
-graph TD
-    A[User / Frontend] -->|POST /api/research| B(Express Backend)
-    B --> C{LangGraph Agent}
-    C --> D[Tavily API <br> Web Search & News]
-    C --> E[Yahoo Finance / FMP API <br> Market Data]
-    D --> F[Google Gemini 2.5 Flash]
-    E --> F
-    F -->|Synthesize & Analyze| G[Structured JSON Report]
-    G --> B
-    B -->|Response| A
-    A --> H[Interactive Dashboard]
-```
-
----
-
-## 💻 Tech Stack
-
-### **Frontend**
-- **Framework:** React.js (Vite)
-- **Styling:** Tailwind CSS, Glassmorphism UI
-- **Animations:** Framer Motion
-- **Routing:** React Router DOM
-- **Data Visualization:** Recharts
-- **Icons:** Lucide React
-
-### **Backend**
-- **Environment:** Node.js
-- **Framework:** Express.js
-- **Architecture:** Serverless-ready Modular API
-
-### **AI & Agents**
-- **Orchestration:** LangGraph.js, LangChain.js
-- **Large Language Model:** Google Gemini 2.5 Flash / Groq (Llama 3)
-- **Web Search:** Tavily Search API
-- **Financial Data:** Yahoo Finance API (`yahoo-finance2`) & Financial Modeling Prep (FMP)
-
----
-
-## ⚙️ How It Works
-
-### **LangGraph Workflow**
-
-The backend utilizes a directed acyclic graph (DAG) to process research requests sequentially:
-
-1. **Company Research Node:** Uses Tavily to scrape the web for the company's business model, leadership, and competitors.
-2. **Financial Analysis Node:** Connects to Yahoo Finance to fetch real-time market cap, P/E ratios, revenue growth, and historical trends.
-3. **News Collection Node:** Scrapes recent headlines to determine market sentiment.
-4. **AI Analysis Node:** Feeds all collected data into Google Gemini to generate a SWOT analysis, confidence score, and investment thesis.
-5. **Recommendation:** Outputs a structured JSON object containing a definitive `INVEST` or `PASS` signal.
-
----
-
-## 📁 Project Structure
-
-```text
-AlphaLens-AI/
-├── frontend/                  # React Frontend Application
-│   ├── api/                   # Backend Express Server (Vercel Serverless)
-│   │   ├── agents/            # LangGraph Nodes & AI Logic
-│   │   ├── controllers/       # Express Route Controllers
-│   │   ├── routes/            # API Endpoints (/api/research, /api/chart)
-│   │   └── index.js           # Server Entry Point
-│   ├── src/                   # React Source Code
-│   │   ├── components/        # Reusable UI Components (StockChart, etc.)
-│   │   ├── pages/             # Route Pages (Dashboard, Settings)
-│   │   └── index.css          # Tailwind & Global Styles
-│   ├── vercel.json            # Deployment Configuration
-│   └── package.json           # Unified Dependencies
-└── README.md
-```
-
----
-
-## 🚀 Installation & Setup
-
-### **Prerequisites**
-- Node.js (v18 or higher)
-- npm or yarn
-- API Keys for Google Gemini, Tavily, and optionally Groq/FMP.
-
-### **1. Clone the repository**
 ```bash
-git clone https://github.com/ShivangChaurasia/AlphaLens.git
+git clone https://github.com/YourUsername/AlphaLens.git
 cd AlphaLens
 ```
 
-### **2. Install Dependencies**
-Because the project uses a unified architecture for Vercel, all dependencies (frontend and backend) are in the `frontend` folder.
-```bash
-cd frontend
-npm install
-```
+### Environment Variables
 
-### **3. Environment Variables**
-Create a `.env` file in the `frontend` directory:
+Navigate to the `backend` directory and create a `.env` file:
+
 ```bash
+cd backend
 touch .env
 ```
-Add the following keys:
+
+**Example `.env` file:**
+
 ```env
-# AI Models
-GEMINI_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key
-
-# Tools
-TAVILY_API_KEY=your_tavily_api_key
-FMP_API_KEY=your_fmp_api_key
+PORT=3001
+GEMINI_API_KEY=your_gemini_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
+FMP_API_KEY=your_fmp_api_key_here
 ```
 
-### **4. Run Locally**
-Start the Vite development server and the Express API proxy simultaneously:
+### Backend Installation & Running
+
+From the `backend` directory, install dependencies and start the server:
+
 ```bash
-npm run dev
+# Install dependencies
+npm install
+
+# Start the Express server
+npm run start
+# Or for development: npm run dev
 ```
-The application will be available at `http://localhost:5173`.
+The backend should now be running on `http://localhost:3001`.
+
+### Frontend Installation & Running
+
+Open a new terminal window, navigate to the `frontend` directory, install dependencies, and start the React app:
+
+```bash
+cd ../frontend
+
+# Install dependencies
+npm install
+
+# Start the React development server
+npm run start
+# Or if using Vite: npm run dev
+```
+The frontend should now be running on `http://localhost:3000` (or the port specified by your bundler).
 
 ---
 
-## 🔑 Environment Variables Guide
+## 3. How It Works
 
-- **`GEMINI_API_KEY`**: Required for the core LLM reasoning. Obtain from [Google AI Studio](https://aistudio.google.com/).
-- **`TAVILY_API_KEY`**: Required for live web search and news fetching. Obtain from [Tavily](https://tavily.com/).
-- **`FMP_API_KEY`**: (Optional) Financial Modeling Prep API for secondary market data fallback. Obtain from [FMP](https://site.financialmodelingprep.com/).
+AlphaLens AI employs a robust, agentic architecture to ensure comprehensive data collection and accurate analysis.
 
----
+### Architecture Flow
 
-## ⚖️ Trade-offs & Design Decisions
+```mermaid
+graph TD
+    A[Frontend Dashboard] -->|Ticker Query| B(Express Backend)
+    B --> C{LangGraph Workflow}
+    
+    C -->|Sub-task 1| D[Company Research Node]
+    C -->|Sub-task 2| E[Financial Data Node]
+    C -->|Sub-task 3| F[News Collection Node]
+    
+    D --> G(Data Aggregation)
+    E --> G
+    F --> G
+    
+    G --> H[Gemini Analysis Node]
+    H -->|Reasoning & Extraction| I[Structured JSON Output]
+    I --> B
+    B -->|API Response| A
+```
 
-- **Why React & Vite?** Chose Vite over Create-React-App for significantly faster HMR and optimized build sizes. React provides the component-driven architecture necessary for a complex dashboard.
-- **Why LangGraph?** Traditional LLM chains are linear. LangGraph allows us to build stateful, cyclical, and modular agent workflows, ensuring if one tool fails (e.g., Yahoo Finance), the AI can gracefully fall back to alternative data sources without crashing.
-- **Why Google Gemini 2.5 Flash?** Offers an incredibly large context window and high speed, which is required when feeding dozens of news articles and financial JSON dumps into a single prompt.
-- **No Persistent Database:** To keep the architecture stateless and easily deployable via Serverless Functions, user configurations are stored in `localStorage`. 
-- **Financial API Constraints:** Relying on free-tier financial APIs means rate limits apply. The app implements deterministic fake-data fallbacks if Yahoo Finance returns a `429 Too Many Requests` error to ensure the UI remains testable during API blocks.
+### The Stages Explained
 
----
-
-## 🔮 Future Improvements
-
-- [ ] **Authentication & User Profiles:** Allow users to save their research history.
-- [ ] **Portfolio Tracking:** Let users build a mock portfolio based on AI recommendations.
-- [ ] **Database Integration:** Connect to PostgreSQL/MongoDB to cache financial reports and reduce API costs.
-- [ ] **PDF Exports:** Add a feature to download the generated investment report as a professional PDF.
-- [ ] **Historical Comparisons:** Compare the current AI recommendation against previous quarters.
-
----
-
-## ☁️ Deployment
-
-This project is configured for seamless Serverless deployment.
-
-**Vercel (Unified Deployment - Recommended)**
-The project is structured so that deploying the `frontend` folder to Vercel will automatically host the React app on the Edge network, while simultaneously converting the `frontend/api/` folder into serverless backend functions.
-1. Connect your GitHub repo to Vercel.
-2. Set the Root Directory to `frontend`.
-3. Add your Environment Variables in the Vercel Dashboard.
-4. Deploy!
-
-*(Alternative: You can split the codebase and host the Frontend on Vercel and the Backend on Render, though Vercel is recommended to avoid cloud-provider IP blocks from Yahoo Finance).*
+1. **Frontend Request:** The user inputs a stock ticker (e.g., "AAPL") into the React dashboard.
+2. **Express Backend:** The backend receives the request and initializes the LangGraph agent state.
+3. **LangGraph Workflow:** The graph orchestrates the execution of several specialist nodes concurrently or sequentially based on dependencies.
+4. **Company Research:** Fetches basic company profile information.
+5. **Financial Data:** Reaches out to the FMP API to pull recent income statements, balance sheets, and key financial ratios.
+6. **News Collection:** Uses the Tavily API to perform a targeted web search for the latest news articles and market sentiment regarding the company.
+7. **Gemini Analysis:** All collected raw data is injected into a prompt for Google's Gemini model. The prompt instructs the LLM to act as a senior financial analyst, synthesizing the data.
+8. **Structured JSON:** Gemini is constrained to output its analysis in a strict JSON format (using structured outputs/function calling) to ensure reliable parsing.
+9. **Frontend Dashboard:** The backend sends the JSON payload back to the frontend, which renders the data into beautiful charts, summaries, and recommendation widgets.
 
 ---
 
-## 🏆 Assignment Compliance
+## 4. Key Decisions & Trade-offs
 
-This project was built to satisfy internship assignment requirements:
-- ✔ **Overview:** Included a clear description of the AI-powered investment research concept.
-- ✔ **How to Run:** Provided step-by-step local setup instructions.
-- ✔ **How It Works:** Documented the LangGraph multi-agent pipeline and architectural flow.
-- ✔ **Key Decisions & Trade-offs:** Outlined the reasoning behind the tech stack and stateless design.
-- ✔ **Example Runs:** The dashboard seamlessly outputs SWOT, risks, and an INVEST/PASS score.
-- ✔ **Future Improvements:** Listed actionable features for subsequent iterations.
+Building a production-ready AI application requires balancing performance, development speed, and complexity.
+
+### Technical Choices
+- **Why React?** Provides a robust component-based architecture for building a dynamic, interactive dashboard that updates seamlessly as analysis results stream in.
+- **Why Express?** A lightweight and unopinionated backend framework perfect for serving as a proxy and orchestrator for our AI workflows without unnecessary boilerplate.
+- **Why LangGraph?** Traditional sequential chains break down on complex tasks. LangGraph allows us to define the research process as a stateful graph, enabling cyclical reasoning, parallel data fetching, and robust error handling.
+- **Why Gemini?** Offers a massive context window (essential for reading multiple financial reports and news articles simultaneously) and excellent native JSON structured output capabilities.
+- **Why Tailwind CSS?** Enables rapid UI prototyping with utility classes, keeping styling co-located with components and ensuring a consistent design system.
+- **Why no database?** For the MVP, the focus was on real-time agentic research rather than data persistence. The architecture is stateless, which drastically simplifies deployment.
+- **Why Tavily?** Optimized specifically for AI agents, Tavily returns clean, parsed text from web pages rather than just raw HTML or URLs, reducing token usage and parsing logic.
+- **Why Financial Modeling Prep?** Provides comprehensive, institutional-quality financial data with developer-friendly REST APIs.
+
+### Trade-offs
+- **No persistent storage:** Because there is no database, users cannot save their historical analyses or build persistent watchlists. Every query is a fresh run.
+- **API dependency:** The application is entirely dependent on third-party APIs remaining highly available. Rate limits on free tiers can cause research workflows to fail.
+- **Limited financial coverage on free plans:** Niche stocks or deep historical data might be inaccessible without paid API subscriptions.
+- **AI recommendations are informational:** LLMs can hallucinate or misinterpret financial nuance. The system is designed as a research assistant, not a definitive financial advisor.
 
 ---
 
-## 🙏 Acknowledgements
+## 5. Example Runs
 
-- [Google Gemini](https://deepmind.google/technologies/gemini/) for the incredible LLM reasoning.
-- [LangChain & LangGraph](https://www.langchain.com/) for the agentic framework.
-- [Tavily](https://tavily.com/) for optimized AI search.
-- [Yahoo Finance](https://finance.yahoo.com/) & [Financial Modeling Prep](https://site.financialmodelingprep.com/) for market data.
-- [Tailwind CSS](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/) for the beautiful UI.
+Here is a glimpse of what the structured analysis output looks like for various prominent companies.
+
+### Example 1: Tata Consultancy Services (TCS)
+- **Recommendation:** **BUY**
+- **Confidence:** 88%
+- **Executive Summary:** TCS continues to demonstrate robust operational resilience and strong deal momentum in the IT services sector. Despite macro-economic uncertainties impacting discretionary tech spending globally, TCS's large-scale transformational engagements and cost-optimization capabilities for clients have supported stable margins. The company is actively scaling its GenAI offerings and cloud migration services.
+- **Key Risks:** Global macroeconomic slowdown affecting client IT budgets, currency fluctuations, and intensifying attrition or wage inflation in the tech talent pool.
+- **Key Strengths:** Industry-leading margins, highly diversified client base across geographies and verticals, and strong cash generation capabilities.
+
+### Example 2: Pine Labs (Private)
+- **Recommendation:** **HOLD**
+- **Confidence:** 72%
+- **Executive Summary:** Pine Labs is a leading merchant commerce platform in Asia, expanding aggressively beyond its core PoS terminal business into online payments, Buy Now Pay Later (BNPL), and issuing services. While revenue growth has been strong, the company continues to invest heavily in expansion and acquisitions to build a comprehensive fintech ecosystem, which keeps profitability muted in the near term.
+- **Key Risks:** Intense competition in the Indian fintech and payments landscape, regulatory changes regarding BNPL and digital lending, and potential challenges in integrating recent acquisitions.
+- **Key Strengths:** Massive merchant network, strong backing from top-tier institutional investors, and successful diversification into high-margin software and financial services.
+
+### Example 3: Reliance Power (RPOWER)
+- **Recommendation:** **SELL**
+- **Confidence:** 85%
+- **Executive Summary:** Reliance Power has faced significant historical challenges related to high debt burdens and stalled infrastructure projects. While recent debt restructuring efforts and capital infusions have provided some breathing room, the company's core operational profitability remains weak compared to industry peers. The transition towards renewable energy is slow, leaving it exposed to legacy thermal power issues.
+- **Key Risks:** High leverage and potential liquidity constraints, regulatory challenges in tariff realization, and the broader industry shift away from coal-based power generation.
+- **Key Strengths:** Large portfolio of operating power assets and recent successful debt settlement agreements with lenders reducing immediate financial stress.
 
 ---
-<p align="center">Made with ❤️ by Shivang Chaurasia</p>
+
+## 6. What I Would Improve With More Time
+
+While AlphaLens AI demonstrates a powerful agentic workflow, there are several areas for enhancement to reach enterprise-grade maturity:
+
+| Feature | Why it was excluded | How it would be implemented |
+| :--- | :--- | :--- |
+| **Database & Authentication** | Prioritized core AI agent logic for the MVP. | Integrate PostgreSQL with Prisma ORM and NextAuth/Clerk to allow users to save analyses, create accounts, and manage API usage. |
+| **Watchlists & Portfolio Tracking** | Requires persistent storage and user accounts. | Build a dashboard component that periodically runs lightweight background checks on saved tickers. |
+| **Caching Layer** | Minimizing infrastructure overhead. | Implement Redis. Financial statements update quarterly, making them perfect candidates for caching to reduce API costs and latency. |
+| **Streaming Responses** | Increases backend complexity (SSE/WebSockets). | Use LangChain's streaming capabilities and Server-Sent Events to stream the LLM's thought process and partial JSON to the UI, improving perceived performance. |
+| **Multiple LLM Providers** | Focused on optimizing prompts for a single model (Gemini). | Abstract the LLM interface to allow users to select between Anthropic Claude, OpenAI GPT-4o, and Gemini based on preference or cost. |
+| **Agent Memory** | Short-term workflow didn't require conversational context. | Implement LangGraph's checkpointer (e.g., using SQLite) so the agent remembers previous questions a user asked about a specific stock. |
+| **PDF Exports** | UI/UX was prioritized over document generation. | Integrate a library like `puppeteer` or `jsPDF` to generate polished, printable teardown reports directly from the dashboard. |
+| **Competitor Benchmarking** | Expanding the DAG to handle 3-5 companies simultaneously increases latency and token limits significantly. | Create a dedicated "Comparison Node" in LangGraph that fetches data for a target company and its top two peers, prompting the LLM to generate a comparative matrix. |
+| **Historical Stock Analysis** | Focus was on real-time agentic research and fundamental data synthesis. | Incorporate charting libraries (e.g., Chart.js or Recharts) in the frontend and connect to historical price endpoints via the FMP API. |
+| **More Financial Indicators** | Kept the scope to key fundamental metrics (balance sheet, income statement) to limit context window size. | Implement additional financial formulas on the backend and integrate them as new nodes in the LangGraph workflow. |
+
+---
+
+*AlphaLens AI was developed as a submission for an AI Product Engineering internship, showcasing modern full-stack development combined with advanced agentic LLM workflows.*
