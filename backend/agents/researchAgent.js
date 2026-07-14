@@ -79,13 +79,10 @@ async function financialNode(state, config) {
     const searchRes = await yahooFinance.search(searchQuery, { quotesCount: 10 });
     let indianTicker = searchRes.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
     
-    // If appending NSE didn't yield an Indian ticker, try searching normally
+    // If appending NSE didn't yield an Indian ticker, try searching normally for .NS or .BO
     if (!indianTicker) {
       const fallbackSearch = await yahooFinance.search(company, { quotesCount: 10 });
       indianTicker = fallbackSearch.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
-      if (!indianTicker && fallbackSearch.quotes[0]) {
-        indianTicker = fallbackSearch.quotes[0];
-      }
     }
 
     const ticker = indianTicker ? indianTicker.symbol : null;
