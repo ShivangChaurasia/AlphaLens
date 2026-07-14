@@ -160,7 +160,7 @@ async function analysisNode(state, config) {
   let llm;
   if (aiProvider === 'gemini' && geminiKey) {
     llm = new ChatGoogleGenerativeAI({
-      modelName: "gemini-2.5-flash",
+      modelName: "gemini-1.5-flash",
       apiKey: geminiKey,
       temperature: 0.2,
     });
@@ -219,7 +219,7 @@ async function analysisNode(state, config) {
       if (aiProvider === 'groq' && geminiKey) {
         console.warn("Falling back to Gemini...");
         const fallbackLlm = new ChatGoogleGenerativeAI({
-          modelName: "gemini-2.5-flash",
+          modelName: "gemini-1.5-flash",
           apiKey: geminiKey,
           temperature: 0.2,
         });
