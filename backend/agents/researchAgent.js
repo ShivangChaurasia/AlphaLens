@@ -70,37 +70,25 @@ async function financialNode(state, config) {
     dividend: 0
   };
   
-  const generateFakeData = () => {
-    // Generate a deterministic hash from the company name
-    let hash = 0;
-    for (let i = 0; i < company.length; i++) {
-      hash = (hash << 5) - hash + company.charCodeAt(i);
-      hash |= 0;
-    }
-    hash = Math.abs(hash) || 1; // ensure non-zero
-    
-    // Simple pseudo-random number generator using the hash as a seed
-    const rand = (n) => ((hash * n * 9301 + 49297) % 233280) / 233280;
-
-    const currentPrice = rand(1) * 5000 + 100;
-    return {
-      revenue: rand(2) * 500000 * 10000000, 
-      netIncome: rand(3) * 50000 * 10000000, 
-      eps: (rand(4) * 100).toFixed(2),
-      peRatio: (rand(5) * 80).toFixed(2),
-      marketCap: rand(6) * 2000000 * 10000000, 
-      revenueGrowth: (rand(7) * 30).toFixed(1),
-      profitMargin: (rand(8) * 25).toFixed(1),
-      currentPrice: currentPrice,
-      priceChange: (rand(9) * 10 - 5).toFixed(2), 
-      stopLoss: (currentPrice * 0.92).toFixed(2) 
-    };
-  };
-
   try {
-    const searchRes = await yahooFinance.search(company, { quotesCount: 5 });
-    const indianTicker = searchRes.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
-    const ticker = indianTicker ? indianTicker.symbol : (searchRes.quotes[0] ? searchRes.quotes[0].symbol : null);
+    // Try appending NSE to the search if it's not already there to prioritize Indian stocks
+    const searchQuery = company.toLowerCase().includes('nse') || company.toLowerCase().includes('bse') 
+      ? company 
+      : `${company} NSE`;
+
+    const searchRes = await yahooFinance.search(searchQuery, { quotesCount: 10 });
+    let indianTicker = searchRes.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
+    
+    // If appending NSE didn't yield an Indian ticker, try searching normally
+    if (!indianTicker) {
+      const fallbackSearch = await yahooFinance.search(company, { quotesCount: 10 });
+      indianTicker = fallbackSearch.quotes.find(q => q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO'));
+      if (!indianTicker && fallbackSearch.quotes[0]) {
+        indianTicker = fallbackSearch.quotes[0];
+      }
+    }
+
+    const ticker = indianTicker ? indianTicker.symbol : null;
 
     if (ticker) {
       const quote = await yahooFinance.quoteSummary(ticker, { modules: ['price', 'defaultKeyStatistics', 'financialData', 'summaryProfile'] });
@@ -121,11 +109,11 @@ async function financialNode(state, config) {
       throw new Error("Ticker not found on Yahoo Finance");
     }
   } catch (e) {
-    if (e.message === "Ticker not found on Yahoo Finance") {
+    console.error("Yahoo Finance API failed:", e.message);
+    if (e.message === "Ticker not found on Yahoo Finance" || e.message.includes("Could not find any stock data")) {
       throw new Error(`Could not find any stock data for "${company}". Please check the spelling and try again.`);
     }
-    console.warn("Yahoo Finance API failed:", e.message, "- Falling back to fake data");
-    financials = { ...financials, ...generateFakeData() };
+    throw new Error("Server seems busy, try again later...");
   }
   
   return { financials };
@@ -225,23 +213,40 @@ async function analysisNode(state, config) {
   `;
 
   try {
-    const res = await llm.invoke(prompt);
+    let res;
+    try {
+      res = await llm.invoke(prompt);
+    } catch (e) {
+      console.warn(`Primary LLM (${aiProvider}) failed:`, e.message);
+      // Fallback to the other provider if available
+      if (aiProvider === 'groq' && geminiKey) {
+        console.warn("Falling back to Gemini...");
+        const fallbackLlm = new ChatGoogleGenerativeAI({
+          modelName: "gemini-2.5-flash",
+          apiKey: geminiKey,
+          temperature: 0.2,
+        });
+        res = await fallbackLlm.invoke(prompt);
+      } else if (aiProvider === 'gemini' && groqKey) {
+        console.warn("Falling back to Groq...");
+        const fallbackLlm = new ChatGroq({
+          model: "llama-3.3-70b-versatile",
+          apiKey: groqKey,
+          temperature: 0.2,
+        });
+        res = await fallbackLlm.invoke(prompt);
+      } else {
+        throw e; // No fallback possible
+      }
+    }
     
     let text = res.content;
     text = text.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
     const analysisObj = JSON.parse(text);
     return { analysis: analysisObj };
   } catch (e) {
-    console.error("LLM Analysis Failed:", e);
-    return { 
-      analysis: {
-        summary: "Analysis failed due to error: " + e.message,
-        recommendation: "PASS",
-        confidence: 0,
-        reasoning: "Error generating analysis.",
-        swot: {}
-      }
-    };
+    console.error("LLM Analysis Failed after all attempts:", e.message);
+    throw new Error("Server is busy, please try again later...");
   }
 }
 
